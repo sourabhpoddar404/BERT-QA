@@ -4,23 +4,15 @@
 # Sep30, 2019
 
 
-import os, sys, argparse, re, json
-
-from matplotlib.pylab import *
-import torch.nn as nn
-import torch
-import torch.nn.functional as F
+import argparse
 import random as python_random
-# import torchvision.datasets as dsets
+
+from transformers import BertConfig, BertModel
 
 # BERT
 from bert import tokenization
-from bert.modeling import BertConfig, BertModel
-
-from sqlova.utils.utils_wikisql import *
-from sqlova.utils.utils import load_jsonl
-from sqlova.model.nl2sql.wikisql_models import *
 from sqlnet.dbengine import DBEngine
+from sqlova.model.nl2sql.wikisql_models import *
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -119,15 +111,17 @@ def get_bert(BERT_PT_PATH, bert_type, do_lower_case, no_pretraining):
     bert_config = BertConfig.from_json_file(bert_config_file)
     tokenizer = tokenization.FullTokenizer(
         vocab_file=vocab_file, do_lower_case=do_lower_case)
-    bert_config.print_status()
+    #bert_config.print_status()
 
     model_bert = BertModel(bert_config)
     if no_pretraining:
         pass
     else:
-        model_bert.load_state_dict(torch.load(init_checkpoint, map_location='cpu'))
+        model_bert.from_pretrained("bert-base-uncased")
+        #model_bert.load_state_dict(torch.load(init_checkpoint, map_location='cpu'))
         print("Load pre-trained parameters.")
     model_bert.to(device)
+
 
     return model_bert, tokenizer, bert_config
 
